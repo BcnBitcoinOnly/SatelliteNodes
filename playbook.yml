@@ -2,33 +2,80 @@
 - name: Deploy Bitcoin Core on Debian 11 machines
   hosts: debian11
   become: yes
-  
+
+  vars:
+    bitcoin_version: 0.23.2
+
   tasks:
-    - name: Install Bitcoin Core dependencies
+    - name: Install required packages
       apt:
-        name: ['build-essential', 'libtool', 'autotools-dev', 'automake', 'pkg-config', 'libssl-dev', 'libevent-dev', 'bsdmainutils', 'libboost-system-dev', 'libboost-filesystem-dev', 'libboost-chrono-dev', 'libboost-program-options-dev', 'libboost-test-dev', 'libboost-thread-dev', 'libzmq3-dev']
+        name:
+          - build-essential
+          - libtool
+          - autotools-dev
+          - automake
+          - pkg-config
+          - libssl-dev
+          - libevent-dev
+          - bsdmainutils
+          - libboost-system-dev
+          - libboost-filesystem-dev
+          - libboost-chrono-dev
+          - libboost-program-options-dev
+          - libboost-test-dev
+          - libboost-thread-dev
+          - libdb-dev
+          - libdb++-dev
+          - git
         state: present
-        
-    - name: Download and install Bitcoin Core
-      become_user: bitcoin
+
+    - name: Clone Bitcoin Core repository
+      git:
+        repo: https://github.com/bitcoin/bitcoin.git
+        dest: ~/bitcoin
+        version: v{{ bitcoin_version }}
+        force: yes
+
+    - name: Compile Bitcoin Core from source
       shell: |
-        cd /home/bitcoin
-        wget https://bitcoin.org/bin/bitcoin-core-0.22.0/bitcoin-0.22.0-x86_64-linux-gnu.tar.gz
-        tar -xzf bitcoin-0.22.0-x86_64-linux-gnu.tar.gz
-        sudo install -m 0755 -o root -g root -t /usr/local/bin bitcoin-0.22.0/bin/*
-        
-    - name: Configure Bitcoin Core
-      become_user: bitcoin
+        cd ~/bitcoin
+        ./autogen.sh
+        ./configure --without-gui --with-incompatible-bdb
+        make
+
+    - name: Install Bitcoin Core binaries
+      shell: |
+        cd ~/bitcoin/src
+        sudo install -m 0755 bitcoind bitcoin-cli /usr/local/bin/
+
+    - name: Create Bitcoin Core configuration file
       copy:
         dest: /home/bitcoin/.bitcoin/bitcoin.conf
         content: |
-          rpcuser=your_rpc_username
-          rpcpassword=your_rpc_password
+          # Bitcoin Core configuration file
+          server=1
+          daemon=1
+          rpcuser={{ ansible_user }}
+          rpcpassword={{ lookup('password', '/dev/null length=15 chars=ascii_letters,digits') }}
+          disablewallet=1
           txindex=1
-          
+          logips=1
+          zmqpubhashblock=tcp://127.0.0.1:28332
+          zmqpubrawtx=tcp://127.0.0.1:28332
+          zmqpubhashtx=tcp://127.0.0.1:28332
+          zmqpubrawblock=tcp://127.0.0.1:28332
+          rpccookiefile=/home/bitcoin/.bitcoin/.cookie
+          rpcauth={{ ansible_user }}:{{ lookup('password', '/dev/null length=15 chars=ascii_letters,digits') }}:all
+
+    - name: Create Bitcoin Core cookie file
+      file:
+        path: /home/bitcoin/.bitcoin/.cookie
+        state: touch
+        mode: 0600
+      no_log: true
+
     - name: Start Bitcoin Core daemon
-      become_user: bitcoin
       systemd:
-        name: bitcoind
-        enabled: yes
+        name: bitcoind.service
         state: started
+        enabled: yes
