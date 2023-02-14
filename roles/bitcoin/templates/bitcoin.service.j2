@@ -1,0 +1,13 @@
+[Unit]
+Description=Bitcoin Core Full Node
+After=network.target
+
+[Service]
+User={{ bitcoin_user }}
+Group={{ bitcoin_group }}
+Type=simple
+ExecStart=/usr/local/bin/bitcoind -conf={{ bitcoin_conf_file }} -datadir={{ bitcoin_data_dir }} -daemon
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

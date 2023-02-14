@@ -15,6 +15,7 @@
       - libboost-test-dev
       - libboost-thread-dev
       - libssl-dev
+      - ufw
     state: present
 
 - name: Clone Bitcoin Core
@@ -41,3 +42,14 @@
     owner: bitcoin
     group: bitcoin
     mode: 0600
+
+- name: Configure UFW firewall
+  ufw:
+    rule: allow
+    port: ssh
+
+- name: Ensure SSH service is enabled
+  service:
+    name: ssh
+    enabled: yes
+    state: started
