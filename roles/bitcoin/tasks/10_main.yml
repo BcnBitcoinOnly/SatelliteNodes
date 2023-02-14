@@ -16,32 +16,8 @@
       - libboost-thread-dev
       - libssl-dev
       - ufw
+      - cargo
     state: present
-
-- name: Clone Bitcoin Core
-  git:
-    repo: https://github.com/bitcoin/bitcoin.git
-    dest: /opt/bitcoin
-    version: "{{ bitcoin_version }}"
-  when: skip_build == False
-
-- name: Build Bitcoin Core
-  shell: |
-    cd /opt/bitcoin
-    ./autogen.sh
-    ./configure --disable-wallet
-    make
-    make install
-  become: yes
-  when: skip_build == False
-
-- name: Copy bitcoin.conf
-  copy:
-    src: files/bitcoin.conf
-    dest: /home/bitcoin/.bitcoin/bitcoin.conf
-    owner: bitcoin
-    group: bitcoin
-    mode: 0600
 
 - name: Configure UFW firewall
   ufw:
@@ -53,3 +29,15 @@
     name: ssh
     enabled: yes
     state: started
+
+- name: Create home folder for bitcoin user
+  become: true
+  user:
+    name: bitcoin
+    createhome: yes
+
+- name: Create home folder for electrs user
+  become: true
+  user:
+    name: electrs
+    createhome: yes

@@ -8,7 +8,7 @@ SatelliteNodes is perfect for developers and enthusiasts who want to run their o
 
 ## Features
 
-- Easy to use Ansible playbook for deploying Bitcoin Core on Debian 11 machines.
+- Easy to use Ansible playbook for deploying Bitcoin Core on Debian machines.
 - Customizable Ansible role for installing and configuring Bitcoin Core to suit your specific needs.
 - Automatic download and installation of the latest version of Bitcoin Core from the official website.
 - Configures Bitcoin Core with a custom \`bitcoin.conf\` file.
