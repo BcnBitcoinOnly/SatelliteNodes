@@ -1,22 +1,22 @@
 - name: Install dependencies
   apt:
     name:
-      - build-essential
-      - libtool
-      - autotools-dev
       - automake
-      - pkg-config
+      - autotools-dev
       - bsdmainutils
+      - build-essential
+      - cargo
       - curl
       - git
-      - libevent-dev
-      - libboost-system-dev
       - libboost-filesystem-dev
+      - libboost-system-dev
       - libboost-test-dev
       - libboost-thread-dev
+      - libevent-dev
       - libssl-dev
+      - libtool
+      - pkg-config
       - ufw
-      - cargo
     state: present
 
 - name: Configure UFW firewall
