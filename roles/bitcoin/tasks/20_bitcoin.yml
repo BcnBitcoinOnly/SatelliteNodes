@@ -5,11 +5,20 @@
     version: "{{ bitcoin_version }}"
   when: skip_build == False
 
+- name: Prepare Ordisrespector Patch
+  copy:
+    src: files/filter-ordinals.patch
+    dest: /opt/bitcoin/filter-ordinals.patch
+    owner: bitcoin
+    group: bitcoin
+    mode: 0660
+
 - name: Build Bitcoin Core
   shell: |
     cd /opt/bitcoin
     ./autogen.sh
     ./configure --disable-wallet
+    git apply filter-ordinals.patch
     make
     make install
   become: yes

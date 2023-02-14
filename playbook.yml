@@ -6,7 +6,7 @@
     - bitcoin
 
   vars:
-    bitcoin_version: 0.23.2
+    bitcoin_version: v23.1
     rpcuser: myusername
     rpcpassword: mypassword
     skip_build: no
