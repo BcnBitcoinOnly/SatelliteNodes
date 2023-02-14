@@ -1,0 +1,14 @@
+[Unit]
+Description=Electrum Server
+After=bitcoind.service
+
+[Service]
+User={{ electrs_user }}
+Group={{ electrs_group }}
+ExecStart={{ electrs_bin }} --daemon-dir {{ electrs_data_dir }} --db-dir {{ electrs_db_dir }} --electrum-rpc-addr {{ electrum_rpc_addr }}
+KillMode=process
+Restart=always
+TimeoutStopSec=30s
+
+[Install]
+WantedBy=multi-user.target

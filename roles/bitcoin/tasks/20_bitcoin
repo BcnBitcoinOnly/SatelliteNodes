@@ -1,0 +1,33 @@
+- name: Clone Bitcoin Core
+  git:
+    repo: https://github.com/bitcoin/bitcoin.git
+    dest: /opt/bitcoin
+    version: "{{ bitcoin_version }}"
+  when: skip_build == False
+
+- name: Build Bitcoin Core
+  shell: |
+    cd /opt/bitcoin
+    ./autogen.sh
+    ./configure --disable-wallet
+    make
+    make install
+  become: yes
+  when: skip_build == False
+
+- name: Copy bitcoin.conf
+  copy:
+    src: files/bitcoin.conf
+    dest: /home/bitcoin/.bitcoin/bitcoin.conf
+    owner: bitcoin
+    group: bitcoin
+    mode: 0600
+
+- name: Create bitcoin.service file
+  become: true
+  template:
+    src: bitcoin.service.j2
+    dest: /etc/systemd/system/bitcoin.service
+    mode: 0644
+  notify:
+    - Reload systemd

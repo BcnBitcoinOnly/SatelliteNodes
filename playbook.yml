@@ -1,6 +1,6 @@
 ---
-- hosts: all
-  become: yes
+- hosts: bitcoin_nodes
+  become: true
 
   roles:
     - bitcoin
@@ -10,3 +10,13 @@
     rpcuser: myusername
     rpcpassword: mypassword
     skip_build: no
+    bitcoin_user: bitcoin
+    bitcoin_group: bitcoin
+    bitcoin_conf_file: /etc/bitcoin/bitcoin.conf
+    bitcoin_data_dir: /srv/bitcoin
+    electrs_user: electrs
+    electrs_group: electrs
+    electrs_bin: /opt/electrs/target/release/electrs
+    electrs_data_dir: /home/electrs/.electrs
+    electrs_db_dir: /home/electrs/.electrs/db
+    electrum_rpc_addr: 127.0.0.1:50001

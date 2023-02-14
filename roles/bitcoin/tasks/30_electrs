@@ -1,0 +1,61 @@
+- name: Install Electrs
+  become: true
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - git
+    - cargo
+    - libssl-dev
+  tags:
+    - electrs
+
+- name: Clone Electrs repository
+  become: true
+  git:
+    repo: "https://github.com/romanz/electrs"
+    dest: "/opt/electrs"
+    version: "master"
+    clone: yes
+  tags:
+    - electrs
+
+- name: Build Electrs
+  become: true
+  command: cargo build --release
+  args:
+    chdir: /opt/electrs
+  tags:
+    - electrs
+
+- name: Create electrs user and group
+  become: true
+  user:
+    name: electrs
+    state: present
+    createhome: no
+    system: yes
+  group:
+    name: electrs
+    state: present
+    system: yes
+  tags:
+    - electrs
+
+- name: Create Electrs Systemd Service
+  become: true
+  template:
+    src: "templates/electrs.service.j2"
+    dest: "/etc/systemd/system/electrs.service"
+    mode: "0644"
+  tags:
+    - electrs
+
+- name: Start Electrs Service
+  become: true
+  systemd:
+    name: electrs
+    state: started
+    enabled: yes
+  tags:
+    - electrs
