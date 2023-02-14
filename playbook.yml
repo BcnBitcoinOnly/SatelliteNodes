@@ -1,0 +1,34 @@
+---
+- name: Deploy Bitcoin Core on Debian 11 machines
+  hosts: debian11
+  become: yes
+  
+  tasks:
+    - name: Install Bitcoin Core dependencies
+      apt:
+        name: ['build-essential', 'libtool', 'autotools-dev', 'automake', 'pkg-config', 'libssl-dev', 'libevent-dev', 'bsdmainutils', 'libboost-system-dev', 'libboost-filesystem-dev', 'libboost-chrono-dev', 'libboost-program-options-dev', 'libboost-test-dev', 'libboost-thread-dev', 'libzmq3-dev']
+        state: present
+        
+    - name: Download and install Bitcoin Core
+      become_user: bitcoin
+      shell: |
+        cd /home/bitcoin
+        wget https://bitcoin.org/bin/bitcoin-core-0.22.0/bitcoin-0.22.0-x86_64-linux-gnu.tar.gz
+        tar -xzf bitcoin-0.22.0-x86_64-linux-gnu.tar.gz
+        sudo install -m 0755 -o root -g root -t /usr/local/bin bitcoin-0.22.0/bin/*
+        
+    - name: Configure Bitcoin Core
+      become_user: bitcoin
+      copy:
+        dest: /home/bitcoin/.bitcoin/bitcoin.conf
+        content: |
+          rpcuser=your_rpc_username
+          rpcpassword=your_rpc_password
+          txindex=1
+          
+    - name: Start Bitcoin Core daemon
+      become_user: bitcoin
+      systemd:
+        name: bitcoind
+        enabled: yes
+        state: started
