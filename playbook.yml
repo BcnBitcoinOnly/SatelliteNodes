@@ -1,81 +1,12 @@
 ---
-- name: Deploy Bitcoin Core on Debian 11 machines
-  hosts: debian11
+- hosts: all
   become: yes
+
+  roles:
+    - bitcoin
 
   vars:
     bitcoin_version: 0.23.2
-
-  tasks:
-    - name: Install required packages
-      apt:
-        name:
-          - build-essential
-          - libtool
-          - autotools-dev
-          - automake
-          - pkg-config
-          - libssl-dev
-          - libevent-dev
-          - bsdmainutils
-          - libboost-system-dev
-          - libboost-filesystem-dev
-          - libboost-chrono-dev
-          - libboost-program-options-dev
-          - libboost-test-dev
-          - libboost-thread-dev
-          - libdb-dev
-          - libdb++-dev
-          - git
-        state: present
-
-    - name: Clone Bitcoin Core repository
-      git:
-        repo: https://github.com/bitcoin/bitcoin.git
-        dest: ~/bitcoin
-        version: v{{ bitcoin_version }}
-        force: yes
-
-    - name: Compile Bitcoin Core from source
-      shell: |
-        cd ~/bitcoin
-        ./autogen.sh
-        ./configure --without-gui --with-incompatible-bdb
-        make
-
-    - name: Install Bitcoin Core binaries
-      shell: |
-        cd ~/bitcoin/src
-        sudo install -m 0755 bitcoind bitcoin-cli /usr/local/bin/
-
-    - name: Create Bitcoin Core configuration file
-      copy:
-        dest: /home/bitcoin/.bitcoin/bitcoin.conf
-        content: |
-          # Bitcoin Core configuration file
-          server=1
-          daemon=1
-          rpcuser={{ ansible_user }}
-          rpcpassword={{ lookup('password', '/dev/null length=15 chars=ascii_letters,digits') }}
-          disablewallet=1
-          txindex=1
-          logips=1
-          zmqpubhashblock=tcp://127.0.0.1:28332
-          zmqpubrawtx=tcp://127.0.0.1:28332
-          zmqpubhashtx=tcp://127.0.0.1:28332
-          zmqpubrawblock=tcp://127.0.0.1:28332
-          rpccookiefile=/home/bitcoin/.bitcoin/.cookie
-          rpcauth={{ ansible_user }}:{{ lookup('password', '/dev/null length=15 chars=ascii_letters,digits') }}:all
-
-    - name: Create Bitcoin Core cookie file
-      file:
-        path: /home/bitcoin/.bitcoin/.cookie
-        state: touch
-        mode: 0600
-      no_log: true
-
-    - name: Start Bitcoin Core daemon
-      systemd:
-        name: bitcoind.service
-        state: started
-        enabled: yes
+    rpcuser: myusername
+    rpcpassword: mypassword
+    skip_build: no

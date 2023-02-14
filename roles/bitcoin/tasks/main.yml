@@ -1,0 +1,43 @@
+- name: Install dependencies
+  apt:
+    name:
+      - build-essential
+      - libtool
+      - autotools-dev
+      - automake
+      - pkg-config
+      - bsdmainutils
+      - curl
+      - git
+      - libevent-dev
+      - libboost-system-dev
+      - libboost-filesystem-dev
+      - libboost-test-dev
+      - libboost-thread-dev
+      - libssl-dev
+    state: present
+
+- name: Clone Bitcoin Core
+  git:
+    repo: https://github.com/bitcoin/bitcoin.git
+    dest: /opt/bitcoin
+    version: "{{ bitcoin_version }}"
+  when: skip_build == False
+
+- name: Build Bitcoin Core
+  shell: |
+    cd /opt/bitcoin
+    ./autogen.sh
+    ./configure --disable-wallet
+    make
+    make install
+  become: yes
+  when: skip_build == False
+
+- name: Copy bitcoin.conf
+  copy:
+    src: files/bitcoin.conf
+    dest: /home/bitcoin/.bitcoin/bitcoin.conf
+    owner: bitcoin
+    group: bitcoin
+    mode: 0600
