@@ -28,7 +28,7 @@ To use SatelliteNodes, you'll need to have Ansible installed on your local machi
    ansible-playbook -i inventory.ini playbook.yml
    ```
 
-   Make sure to replace \`inventory.ini\` with the path to your Ansible inventory file.
+   Make sure to replace `inventory.ini` with the path to your Ansible inventory file.
 
 For more detailed instructions, please refer to the `README.md` file.
 
