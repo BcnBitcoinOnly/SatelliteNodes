@@ -24,14 +24,14 @@ To use SatelliteNodes, you'll need to have Ansible installed on your local machi
 
 3. Run the following command to deploy Bitcoin Core on your Debian 11 machines:
 
-   \`\`\`
+   ```
    ansible-playbook -i inventory.ini playbook.yml
-   \`\`\`
+   ```
 
    Make sure to replace \`inventory.ini\` with the path to your Ansible inventory file.
 
-For more detailed instructions, please refer to the \`README.md\` file.
+For more detailed instructions, please refer to the `README.md` file.
 
 ## License
 
-SatelliteNodes is released under the MIT License. See the \`LICENSE\` file for more information.
+SatelliteNodes is released under the GNU General Public License. See the `LICENSE` file for more information.
